@@ -175,3 +175,6 @@ scraper.py
 
 # Local Parameter
 parameters.json
+
+# Mac related
+.DS_Store
