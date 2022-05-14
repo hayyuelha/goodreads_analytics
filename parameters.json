@@ -1,0 +1,13 @@
+{
+    "chromedriver_path": "/Users/hayyu.hanifah/Documents/GitHub/goodreads_analytics/chromedriver",
+    "highlight_lp_url": "https://www.goodreads.com/notes/38648728-hayyu-hanifah",
+    "highlight_filepath": "/Users/hayyu.hanifah/Documents/GitHub/goodreads_analytics/highlights.txt",
+    "gr_library_export_filepath": "/Users/hayyu.hanifah/Documents/GitHub/goodreads_analytics/goodreads_library_export.csv",
+    "genre_filepath_1": "/Users/hayyu.hanifah/Documents/GitHub/goodreads_analytics/books_genre_20220506.txt",
+    "genre_filepath_2": "/Users/hayyu.hanifah/Documents/GitHub/goodreads_analytics/books_genre_20220506_2.txt",
+    "genre_filepath_3": "/Users/hayyu.hanifah/Documents/GitHub/goodreads_analytics/books_genre_20220507.txt",
+    "clean_genre_filepath": "/Users/hayyu.hanifah/Documents/GitHub/goodreads_analytics/book_genre.csv",
+    "review_lp_url": "https://www.goodreads.com/review/list/38648728-hayyu-hanifah",
+    "timeline_filepath": "/Users/hayyu.hanifah/Documents/GitHub/goodreads_analytics/books_timeline.txt",
+    "consolidated_data_filepath": "/Users/hayyu.hanifah/Documents/GitHub/goodreads_analytics/book_data_consolidated_fin.csv"
+}
