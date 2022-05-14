@@ -150,3 +150,28 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# Conda Env Related
+bin/
+conda-meta/
+etc/
+include/
+lib/
+share/
+ssl/
+
+# Selenium Driver
+chromedriver*
+
+# Intermediary Data
+book_data_consolidated.csv
+highlights_2.txt
+books_genre.txt
+
+# Exploratory Scripts
+goodreads_beautifulsoup.py
+goodreads_spider.py
+scraper.py
+
+# Local Parameter
+parameters.json

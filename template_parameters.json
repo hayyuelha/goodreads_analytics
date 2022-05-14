@@ -1,0 +1,13 @@
+{
+    "chromedriver_path": "[PATH TO CHROMEDRIVER EXE FILE]",
+    "highlight_lp_url": "https://www.goodreads.com/notes/[YOUR GOODREADS IDENTIFIER (numeric string - user name)]",
+    "highlight_filepath": "[TXT FILE TO STORE THE PUBLIC HIGHLIGHTS]",
+    "gr_library_export_filepath": "[PATH TO CSV FROM GOODREADS EXPORT DATA]",
+    "genre_filepath_1": "[TXT FILE TO STORE THE GENRE (PART 1)]",
+    "genre_filepath_2": "[TXT FILE TO STORE THE GENRE (PART 2)]",
+    "genre_filepath_3": "[TXT FILE TO STORE THE GENRE (PART 3)]",
+    "clean_genre_filepath": "[CSV FILE TO STORE THE CONSOLIDATED GENRE DATA]",
+    "review_lp_url": "https://www.goodreads.com/review/list/[YOUR GOODREADS IDENTIFIER (numeric string - user name)]",
+    "timeline_filepath": "[TXT FILE TO STORE BOOKS TIMELINE]",
+    "consolidated_data_filepath": "[FINAL CSV FILE TO STORE CONSOLIDATED DATA]"
+}
