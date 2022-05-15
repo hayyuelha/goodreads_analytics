@@ -117,7 +117,11 @@ overall_by_category = pd.DataFrame(
 
 # Visualization
 st.title("Goodreads Analytics")
-st.markdown("# Overview")
+st.markdown("""
+            ## Overview
+            Total number of books on my shelves as per 1 May 2022, how many have been read,
+            and how many still not finish reading.
+            """)
 labels = overall_by_category['category']
 colors = px.colors.qualitative.Pastel
 fig_total_books = make_subplots(rows=1, cols=3, specs=[[{'type':'domain'}, {'type':'domain'}, {'type':'domain'}]])
@@ -137,23 +141,25 @@ fig_total_books.add_trace(go.Pie(labels=labels, values=overall_by_category['tota
                                  ), 
                           1, 3)
 fig_total_books.update_traces(hole=.52, 
-                              hoverinfo="label+percent",
+                              hoverinfo="label+percent+value",
                               marker=dict(colors=colors[2:5])
                               )
 fig_total_books.update_layout(
         annotations=[
-                dict(text="Total Books", x=0.057, y=0.91, font_size=18, showarrow=False),
+                dict(text="Total Books", x=0.065, y=1.09, font_size=18, showarrow=False),
                 dict(text=str(total_books), x=0.103, y=0.53, font_size=27, showarrow=False),
-                dict(text="books", x=0.103, y=0.45, font_size=15, showarrow=False),
-                dict(text="Read", x=0.5, y=0.91, font_size=18, showarrow=False),
+                dict(text="books", x=0.103, y=0.43, font_size=15, showarrow=False),
+                dict(text="Read", x=0.5, y=1.09, font_size=18, showarrow=False),
                 dict(text=str(total_books_read), x=0.5, y=0.53, font_size=27, showarrow=False),
-                dict(text="books", x=0.5, y=0.45, font_size=15, showarrow=False),
-                dict(text="In Progress", x=0.945, y=0.91, font_size=18, showarrow=False),
+                dict(text="books", x=0.5, y=0.43, font_size=15, showarrow=False),
+                dict(text="In Progress", x=0.937, y=1.09, font_size=18, showarrow=False),
                 dict(text=str(total_books_inprogress), x=0.885, y=0.53, font_size=27, showarrow=False),
-                dict(text="books", x=0.895, y=0.45, font_size=15, showarrow=False)
+                dict(text="books", x=0.895, y=0.43, font_size=15, showarrow=False)
             ],
         legend=dict(yanchor="middle",y=0.5),
-        margin=dict(l=3, r=3, t=3, b=3)
+        margin=dict(l=3, r=3, t=0, b=3),
+        autosize=False,
+        height=250
     )
 st.plotly_chart(fig_total_books)
     
