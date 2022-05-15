@@ -31,6 +31,7 @@ import pandas as pd
 import numpy as np 
 import plotly.graph_objects as go
 import plotly.express as px
+from plotly.subplots import make_subplots
 import streamlit as st
 from datetime import datetime
 import json
@@ -117,17 +118,42 @@ overall_by_category = pd.DataFrame(
 # Visualization
 st.title("Goodreads Analytics")
 st.markdown("# Overview")
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.metric(label= 'Total Books Overall', value = total_books)
-    fig2 = px.pie(overall_by_category, values='total_books', names='category', title='Total Books By Category')
-    st.plotly_chart(fig2)
-    
-with col2:
-    st.metric(label= 'Books Read Overall', value = total_books_read)
-    fig3 = px.pie(overall_by_category, values='total_books_read', names='category', title='Books Read By Category')
-    st.plotly_chart(fig3)
-    
-with col3:
-    st.metric(label= 'Books In Progress Overall', value = total_books_inprogress)
+labels = overall_by_category['category']
+colors = px.colors.qualitative.Pastel
+fig_total_books = make_subplots(rows=1, cols=3, specs=[[{'type':'domain'}, {'type':'domain'}, {'type':'domain'}]])
+fig_total_books.add_trace(go.Pie(labels=labels, values=overall_by_category['total_books'], 
+                                 name="Total Books",
+                                 insidetextorientation='horizontal'
+                                 ), 
+                          1, 1)
+fig_total_books.add_trace(go.Pie(labels=labels, values=overall_by_category['total_books_read'], 
+                                 name="Books Read",
+                                 insidetextorientation='horizontal'
+                                 ), 
+                          1, 2)
+fig_total_books.add_trace(go.Pie(labels=labels, values=overall_by_category['total_books_inprogress'], 
+                                 name="Books In Progress",
+                                 insidetextorientation='horizontal'
+                                 ), 
+                          1, 3)
+fig_total_books.update_traces(hole=.52, 
+                              hoverinfo="label+percent",
+                              marker=dict(colors=colors[2:5])
+                              )
+fig_total_books.update_layout(
+        annotations=[
+                dict(text="Total Books", x=0.057, y=0.91, font_size=18, showarrow=False),
+                dict(text=str(total_books), x=0.103, y=0.53, font_size=27, showarrow=False),
+                dict(text="books", x=0.103, y=0.45, font_size=15, showarrow=False),
+                dict(text="Read", x=0.5, y=0.91, font_size=18, showarrow=False),
+                dict(text=str(total_books_read), x=0.5, y=0.53, font_size=27, showarrow=False),
+                dict(text="books", x=0.5, y=0.45, font_size=15, showarrow=False),
+                dict(text="In Progress", x=0.945, y=0.91, font_size=18, showarrow=False),
+                dict(text=str(total_books_inprogress), x=0.885, y=0.53, font_size=27, showarrow=False),
+                dict(text="books", x=0.895, y=0.45, font_size=15, showarrow=False)
+            ],
+        legend=dict(yanchor="middle",y=0.5),
+        margin=dict(l=3, r=3, t=3, b=3)
+    )
+st.plotly_chart(fig_total_books)
     
