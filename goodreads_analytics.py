@@ -58,13 +58,11 @@ def load_data(param):
     df = pd.read_csv(param['consolidated_data_filepath'])
     
     # Data Preparation
-    df['date_read'] = pd.to_datetime(df['date_read'])
-    df['date_added'] = pd.to_datetime(df['date_added'])
-    df['add_to_tbr_dt'] = pd.to_datetime(df['add_to_tbr_dt'])
-    df['add_to_tbr_dt'] = df.apply(lambda x: x['date_added'] if pd.isna(x['add_to_tbr_dt']) else x['add_to_tbr_dt'], axis=1)
-    df['start_reading_dt'] = pd.to_datetime(df['start_reading_dt'])
-    df['finish_reading_dt'] = pd.to_datetime(df['finish_reading_dt'])
+    date_cols = ['date_read','date_added','add_to_tbr_dt','start_reading_dt','finish_reading_dt']
+    for c in date_cols:
+        df[c] = pd.to_datetime(df[c])
     
+    df['add_to_tbr_dt'] = df.apply(lambda x: x['date_added'] if pd.isna(x['add_to_tbr_dt']) else x['add_to_tbr_dt'], axis=1)
     df['wtr_to_start_read'] = (df['start_reading_dt'] - df['add_to_tbr_dt']).dt.days
     df['start_to_finish_read'] = (df['date_read'] - df['start_reading_dt']).dt.days
     return df
@@ -78,15 +76,17 @@ null_date_start = main_df['start_reading_dt'].isna()
 fiction = (main_df['is_fiction'] == 1)
 nonfiction = (main_df['is_nonfiction'] == 1)
 unknown_category = (main_df['is_fiction'] == 0) & (main_df['is_nonfiction'] == 0)
+# read = (main_df['Exclusive Shelf'] == 'read') | (main_df['Read Count'] > 0)
+read = (main_df['Exclusive Shelf'] == 'read')
 
 ## Overall
 total_books = main_df['Book Id'].nunique()
-total_books_read = main_df[~null_date_read]['Book Id'].nunique()
+total_books_read = main_df[~null_date_read | read]['Book Id'].nunique()
 total_books_inprogress = main_df[(~null_date_start) & (null_date_read)]['Book Id'].nunique()
 
 ### Fiction
 total_books_fic = main_df[fiction]['Book Id'].nunique()
-total_books_read_fic = main_df[(~null_date_read) & fiction]['Book Id'].nunique()
+total_books_read_fic = main_df[(~null_date_read | read) & fiction]['Book Id'].nunique()
 total_books_inprogress_fic = main_df[(~null_date_start) & (null_date_read) & fiction]['Book Id'].nunique()
 
 ### Non Fiction
@@ -124,7 +124,11 @@ st.markdown("""
             """)
 labels = overall_by_category['category']
 colors = px.colors.qualitative.Pastel
-fig_total_books = make_subplots(rows=1, cols=3, specs=[[{'type':'domain'}, {'type':'domain'}, {'type':'domain'}]])
+fig_total_books = make_subplots(rows=1, cols=3, 
+                                subplot_titles=("Total Books","Read","In Progress"),
+                                specs=[[{'type':'domain'}, {'type':'domain'}, {'type':'domain'}]],
+                                
+                                )
 fig_total_books.add_trace(go.Pie(labels=labels, values=overall_by_category['total_books'], 
                                  name="Total Books",
                                  insidetextorientation='horizontal'
@@ -144,22 +148,34 @@ fig_total_books.update_traces(hole=.52,
                               hoverinfo="label+percent+value",
                               marker=dict(colors=colors[2:5])
                               )
+
+## Tricks to find the coordinate for center annotations
+# coord_annot = []
+# for p in list(np.arange(start=0, stop=1.1, step=0.1)):
+#     current_step = "{:.1f}".format(p)
+#     coord_annot.append(dict(text=current_step, x=p, y=0, font_size=15, showarrow=False))
+#     coord_annot.append(dict(text=current_step, x=0, y=p, font_size=15, showarrow=False))
+    
+# donut_existing_annot += coord_annot
+
+donut_center_annot = [
+        dict(text=str(total_books), x=0.103, y=0.53, font_size=27, showarrow=False),
+        dict(text="books", x=0.103, y=0.43, font_size=15, showarrow=False),
+        dict(text=str(total_books_read), x=0.5, y=0.53, font_size=27, showarrow=False),
+        dict(text="books", x=0.5, y=0.43, font_size=15, showarrow=False),
+        dict(text=str(total_books_inprogress), x=0.885, y=0.53, font_size=27, showarrow=False),
+        dict(text="books", x=0.895, y=0.43, font_size=15, showarrow=False)
+    ]
+
+donut_existing_annot = [a.to_plotly_json() for a in fig_total_books["layout"]["annotations"]]
+donut_existing_annot += donut_center_annot # so the center annot and subplot title not override each other
+
 fig_total_books.update_layout(
-        annotations=[
-                dict(text="Total Books", x=0.065, y=1.09, font_size=18, showarrow=False),
-                dict(text=str(total_books), x=0.103, y=0.53, font_size=27, showarrow=False),
-                dict(text="books", x=0.103, y=0.43, font_size=15, showarrow=False),
-                dict(text="Read", x=0.5, y=1.09, font_size=18, showarrow=False),
-                dict(text=str(total_books_read), x=0.5, y=0.53, font_size=27, showarrow=False),
-                dict(text="books", x=0.5, y=0.43, font_size=15, showarrow=False),
-                dict(text="In Progress", x=0.937, y=1.09, font_size=18, showarrow=False),
-                dict(text=str(total_books_inprogress), x=0.885, y=0.53, font_size=27, showarrow=False),
-                dict(text="books", x=0.895, y=0.43, font_size=15, showarrow=False)
-            ],
+        annotations=donut_existing_annot,
         legend=dict(yanchor="middle",y=0.5),
         margin=dict(l=3, r=3, t=0, b=3),
         autosize=False,
         height=250
     )
 st.plotly_chart(fig_total_books)
-    
+
