@@ -245,5 +245,10 @@ with vis_rating_col:
     elif category == 'Non-Fiction':
         fig_rating_dist = plot_ratings_vis(rating_df[nonfiction])
     
+    fig_rating_dist.update_layout(
+            margin=dict(l=3, r=3, t=23, b=3),
+            autosize=False,
+            height=450
+        )
     st.plotly_chart(fig_rating_dist)
 
