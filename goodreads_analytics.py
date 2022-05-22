@@ -29,8 +29,10 @@ TODO:
 
 import pandas as pd 
 import numpy as np 
+# import scipy
 import plotly.graph_objects as go
 import plotly.express as px
+import plotly.figure_factory as ff
 from plotly.subplots import make_subplots
 import streamlit as st
 from datetime import datetime
@@ -46,6 +48,31 @@ def get_dict_from_file(filepath):
 
     json_dict = json.loads(json_str)
     return json_dict
+
+def plot_ratings_vis(df):
+    avg_myrating = df['My Rating'].mean()
+    hist_average_rating = [df['Average Rating'].tolist()]
+    group_labels = ['Overall Average Rating']
+    fig = make_subplots(rows=2, cols=1, row_heights=[0.2,0.8],
+                                    specs=[[{'type':'domain'}], [{}]],
+                                    subplot_titles=("My Average Rating","Average Rating Distribution")
+                                    )
+    fig.add_trace(go.Indicator(
+        mode = "number",
+        value = avg_myrating,
+        domain = {'row': 0, 'column': 0}), 1, 1)
+
+    dist_rating = ff.create_distplot(hist_average_rating, group_labels, bin_size=[.1], show_rug=False)
+    fig.add_trace(
+            go.Histogram(dist_rating.data[0]),
+            2, 1
+        )
+    fig.add_trace(
+            go.Scatter(dist_rating.data[1]),
+            2, 1
+        )
+    
+    return fig
 
 
 ### STREAMLIT
@@ -78,6 +105,7 @@ nonfiction = (main_df['is_nonfiction'] == 1)
 unknown_category = (main_df['is_fiction'] == 0) & (main_df['is_nonfiction'] == 0)
 # read = (main_df['Exclusive Shelf'] == 'read') | (main_df['Read Count'] > 0)
 read = (main_df['Exclusive Shelf'] == 'read')
+have_rating = main_df['My Rating'] != 0
 
 ## Overall
 total_books = main_df['Book Id'].nunique()
@@ -178,4 +206,44 @@ fig_total_books.update_layout(
         height=250
     )
 st.plotly_chart(fig_total_books)
+
+## Overview of My Rating vs Average Rating per books
+## TODO: improve the readability, change height / implement filter; change color
+st.markdown("""
+            ## Ratings
+            Usually I only pick books with minimum rating 3.5 
+            """)
+
+rating_df = main_df[(~null_date_read | read) & (have_rating)] 
+rating_df['abs_diff_rating'] = rating_df.apply(lambda x: abs(x['My Rating'] - x['Average Rating']), axis=1)
+rating_df.sort_values(by=['My Rating','abs_diff_rating'],ascending=[False,False],inplace=True,ignore_index=True)            
+
+fig_rating = px.scatter(rating_df, x=['Average Rating','My Rating'], y='Title', labels={'variable':'Rating'})
+for i in range(len(rating_df)):
+    fig_rating.add_shape(
+            type='line',
+            x0=rating_df['My Rating'].iloc[i], y0=rating_df['Title'].iloc[i],
+            x1=rating_df['Average Rating'].iloc[i], y1=rating_df['Title'].iloc[i],
+            line_color="#cccccc"
+        )
+fig_rating.update_xaxes(showgrid=True, gridwidth=0.3)
+fig_rating.update_yaxes(showgrid=False)
+st.plotly_chart(fig_rating)
+
+
+radio_col, vis_rating_col = st.columns([1, 3])
+
+with radio_col:
+    category = st.radio(
+         "Category filter",
+         ('All', 'Fiction', 'Non-Fiction'))
+with vis_rating_col:
+    if category == 'All':
+        fig_rating_dist = plot_ratings_vis(rating_df)
+    elif category == 'Fiction':
+        fig_rating_dist = plot_ratings_vis(rating_df[fiction])
+    elif category == 'Non-Fiction':
+        fig_rating_dist = plot_ratings_vis(rating_df[nonfiction])
+    
+    st.plotly_chart(fig_rating_dist)
 
